@@ -22,7 +22,7 @@ Runbook Version: __1.5.1__
 
 ---
 
-This migration playbook requires the `cpd-migrate.sh` and `cpd-migrate.input.json` (also referenced as input.json) which will also be provided to Verizon alongside this playbook.
+This migration playbook requires the `cpd-migrate.sh` and `cpd-migrate.input.json` (also referenced as input.json) which will also be provided alongside this playbook.
 
 Additionally, this playbook is for clusters on a restricted network. Below are the links for offline installations of CPDBR, MTC and OADP.
 
@@ -1097,7 +1097,7 @@ $ for cpdcrd in $(oc get crd |grep cpd.ibm.com |awk '{print $1}');do echo --- $c
 
 # PVC resizing script FIX (Target Cluster)
 
-A problem was found during the execution of the current playbook, some of the PVCs got filled during the migration because the big amount of data present in Verizon environment. Because of this the migration phase failed after a lot of time. In order to address this problem Mr. @JC Lopez created a script to dynamically catch the `near_full_alert` and `critical_full_alert` and resize the PVC accordingly.
+A problem was found during the execution of the current playbook, some of the PVCs got filled during the migration because the big amount of data present environment. Because of this the migration phase failed after a lot of time. In order to address this problem Mr. @JC Lopez created a script to dynamically catch the `near_full_alert` and `critical_full_alert` and resize the PVC accordingly.
 
 Check that the target storage classes has the volume expansion set
 ```console
@@ -1260,7 +1260,7 @@ The stage process does not affect the functionality of the application in the So
 
 Cutover on the other hand is the real migration process, This phase by itself will include another stage step to verify the latest data is present in the target cluster, it will halt the application and then it will migrate the custom resources.
 
-Due to some problems while executing staging phase more than one time in Verizon environments during the last migrations, the playbook has been changed to run the CutOver step directly. By this approach there will be only one staging phase involved
+Due to some problems while executing staging phase more than one time in the environments during the last migrations, the playbook has been changed to run the CutOver step directly. By this approach there will be only one staging phase involved
 
 Before cutover, validate again that no pods are running in source cluster and target cluster. This is needed to ensure that everything is stopped on source cluster for the cutover, so when the cutover is performed, MTC does not attempt to resume any operations. The services will be resumed manually for CPD in later steps.
 
@@ -1932,7 +1932,7 @@ After the command completes successfully, the migration restore is now complete!
 
 # CPD Troubleshooting 
 
-This section highlights the different procedures applied during the migration performed in Verizon environment. 
+This section highlights the different procedures applied during the migration performed in the environment. 
 
 ## CRD conflicts between OADP installations
 
@@ -1946,7 +1946,7 @@ If CPD OADP operator is installed and MTC (which contains another version of OAD
 
 ## OOMKilled during the cpd instance unquiesce 
 
-This error was seen during one of the unquiesce process in the verizon cpd instance. 
+This error was seen during one of the unquiesce process in the cpd instance. 
 
 This error was seen in the REDIS pods, but this error is common when having loaded environments
 
@@ -1963,7 +1963,7 @@ Debug with following command:
 oc describe <failing-pod>
 ```
 
-Solution in the Verizon environment was to increase the memory limit in the REDIS deployment by 2x
+Solution in the environment was to increase the memory limit in the REDIS deployment by 2x
 ```
 oc edit deploy <redis-deployment>
 ```
@@ -2087,11 +2087,11 @@ In order to enable the DIM you have to add the target repository/artifactory hos
 
 ## MTC Troubleshooting section
 
-During Verizon migration a few issues were found, This section try to explain and document the workarounds applied for future reference
+During migration a few issues were found, This section try to explain and document the workarounds applied for future reference
 
 **SELinux relabeling and MigController flag**
 
-Cloud Pak for Data application in Verizon environment has a lot of PVCs/PVs and some of them has big chunk of data and/or files created. In MTC during the direct volume migration one rsync server pod is created in the target cluster. This rsync server pod needs to mount all the PVCs in the application in order to evaluate if there is information missing in them.
+Cloud Pak for Data application in environment has a lot of PVCs/PVs and some of them has big chunk of data and/or files created. In MTC during the direct volume migration one rsync server pod is created in the target cluster. This rsync server pod needs to mount all the PVCs in the application in order to evaluate if there is information missing in them.
 
 Because of this if more than one stage operation is executed. There is a possibility that the `rsync-server` pod in the target cluster is not able to start. In order to fix this problem the Red Hat/MTC teams have provided the following fix:
 
@@ -2178,7 +2178,7 @@ metadata:
 
 **How to avoid running pvc and image migration in the cutover**
 
-During verizon migration we hit one problem in which during staging phase the rsync server pods took a lot of time to copy all the PVC data, but it eventually succeded. We had shutdown the CPD instance prior the staging phase so We were completely sure there was no more PVC information that needed to be copied. Besides that Verizon team had copied all the images to the target repository already. So we could safely skip these two steps in the cutover and just go direclty to the migration of the CRs
+During migration we hit one problem in which during staging phase the rsync server pods took a lot of time to copy all the PVC data, but it eventually succeded. We had shutdown the CPD instance prior the staging phase so We were completely sure there was no more PVC information that needed to be copied. Besides that team had copied all the images to the target repository already. So we could safely skip these two steps in the cutover and just go direclty to the migration of the CRs
 
 To do that we modified the migrationcontroller  and added the following flags in the spec section and then ran the cutover
 ```yaml
